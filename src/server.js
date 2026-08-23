@@ -2,7 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import pinoHttp from 'pino-http';
 import dotenv from 'dotenv';
-import { getAllContacts, getContactById } from './services/contacts.js';
+import contactsRouter from './routers/contacts.js';
+import { errorHandler } from './middlewares/errorHandler.js';
+import { notFoundHandler } from './middlewares/notFoundHandler.js';
 
 dotenv.config();
 
@@ -14,49 +16,10 @@ export const setupServer = () => {
   app.use(express.json());
   app.use(pinoHttp());
 
-  // Tüm iletişimleri getiren GET rotası
-  app.get('/contacts', async (req, res) => {
-    try {
-      const contacts = await getAllContacts();
-      
-      res.status(200).json({
-        status: 200,
-        message: 'Successfully found contacts!',
-        data: contacts,
-      });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error' });
-    }
-  });
+  app.use(contactsRouter);
 
-  
-  app.get('/contacts/:contactId', async (req, res) => {
-    try {
-      const { contactId } = req.params;
-      const contact = await getContactById(contactId);
-
-      // Eğer o ID'ye ait bir kişi bulunamazsa
-      if (!contact) {
-        return res.status(404).json({
-          message: 'Contact not found',
-        });
-      }
-
-      // Kişi başarıyla bulunursa
-      res.status(200).json({
-        status: 200,
-        message: `Successfully found contact with id ${contactId}!`,
-        data: contact,
-      });
-    } catch (error) {
-      res.status(500).json({ message: 'Server error' });
-    }
-  });
-
-  // Bulunamayan Rota (404) Handler (Bu her zaman en sonda olmalı!)
-  app.use((req, res, next) => {
-    res.status(404).json({ message: 'Not found' });
-  });
+  app.use(notFoundHandler);
+  app.use(errorHandler);
 
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
