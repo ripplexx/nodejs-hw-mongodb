@@ -2,34 +2,38 @@ import mongoose from 'mongoose';
 
 const contactSchema = new mongoose.Schema(
   {
-    name: { 
-      type: String, 
-      required: true 
+    name: {
+      type: String,
+      required: true,
     },
-    phoneNumber: { 
-      type: String, 
-      required: true 
+    phoneNumber: {
+      type: String,
+      required: true,
     },
-    email: { 
-      type: String 
+    email: {
+      type: String,
+      required: false,
     },
-    isFavourite: { 
-      type: Boolean, 
-      default: false 
+    isFavourite: {
+      type: Boolean,
+      default: false,
     },
     contactType: {
       type: String,
-      enum: ['work', 'home', 'personal'],
       required: true,
+      enum: ['work', 'home', 'personal'],
       default: 'personal',
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
-  { 
-    timestamps: true, // createdAt ve updatedAt alanlarını otomatik ekler
-    versionKey: false // __v alanını gizler (opsiyonel ama temiz görünür)
-  }
+  {
+    timestamps: true,
+    versionKey: false,
+  },
 );
 
-// Model adının koleksiyon adıyla (contacts) eşleşmesi için 
-// Mongoose otomatik olarak ismin çoğul ve küçük harfli halini kullanır.
 export const Contact = mongoose.model('Contact', contactSchema);
